@@ -1,0 +1,253 @@
+# ============================================================================
+# All Temperatures Dashboard Tab
+# Add this as a new tab to your ATO dashboard
+# ============================================================================
+
+title: All Temps
+path: all_temps
+icon: mdi:thermometer-lines
+badges: []
+cards:
+  # Header
+  - type: markdown
+    content: |
+      # 🌡️ Complete Temperature Monitoring
+    card_mod:
+      style: |
+        ha-card {
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          text-align: center;
+        }
+  
+  # All 3 Temperature Gauges
+  - type: horizontal-stack
+    cards:
+      - type: gauge
+        entity: sensor.display_tank_temperature
+        name: Display Tank
+        min: 18
+        max: 32
+        needle: true
+        severity:
+          green: 24
+          yellow: 22
+          red: 20
+        segments:
+          - from: 18
+            color: '#3b82f6'
+          - from: 22
+            color: '#10b981'
+          - from: 26
+            color: '#10b981'
+          - from: 28
+            color: '#f59e0b'
+          - from: 30
+            color: '#ef4444'
+      
+      - type: gauge
+        entity: sensor.sump_temperature
+        name: Sump
+        min: 18
+        max: 32
+        needle: true
+        severity:
+          green: 24
+          yellow: 22
+          red: 20
+        segments:
+          - from: 18
+            color: '#3b82f6'
+          - from: 22
+            color: '#10b981'
+          - from: 26
+            color: '#10b981'
+          - from: 28
+            color: '#f59e0b'
+          - from: 30
+            color: '#ef4444'
+      
+      - type: gauge
+        entity: sensor.ato_tank_temperature
+        name: ATO Reservoir
+        min: 18
+        max: 32
+        needle: true
+  
+  # Temperature Difference Indicator
+  - type: entity
+    entity: sensor.display_sump_temp_difference
+    name: Display ↔ Sump Temperature Difference
+    icon: mdi:thermometer-alert
+    card_mod:
+      style: |
+        :host {
+          {% set diff = states('sensor.display_sump_temp_difference') | float(0) %}
+          {% if diff > 3.0 %}
+          --paper-item-icon-color: #ef4444;
+          animation: pulse 2s infinite;
+          {% elif diff > 2.0 %}
+          --paper-item-icon-color: #f59e0b;
+          {% elif diff > 1.0 %}
+          --paper-item-icon-color: #fbbf24;
+          {% else %}
+          --paper-item-icon-color: #10b981;
+          {% endif %}
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+  
+  # Current Temperatures
+  - type: entities
+    title: Current Temperatures
+    show_header_toggle: false
+    entities:
+      - entity: sensor.display_tank_temperature
+        name: Display Tank
+        icon: mdi:fish
+      
+      - entity: sensor.sump_temperature
+        name: Sump
+        icon: mdi:water-pump
+      
+      - entity: sensor.ato_tank_temperature
+        name: ATO Reservoir
+        icon: mdi:water
+      
+      - type: divider
+      
+      - entity: sensor.display_sump_temp_difference
+        name: Display-Sump Difference
+  
+  # 24-Hour Comparison Chart
+  - type: custom:apexcharts-card
+    header:
+      show: true
+      title: 📊 All Temperatures (24 Hours)
+    graph_span: 24h
+    apex_config:
+      chart:
+        height: 300
+      stroke:
+        curve: smooth
+        width: 2
+      annotations:
+        yaxis:
+          - y: 24
+            y2: 26
+            fillColor: '#10b981'
+            opacity: 0.1
+            label:
+              text: 'Ideal Range'
+    series:
+      - entity: sensor.display_tank_temperature
+        name: Display Tank
+        color: '#3b82f6'
+        stroke_width: 3
+      
+      - entity: sensor.sump_temperature
+        name: Sump
+        color: '#10b981'
+        stroke_width: 3
+      
+      - entity: sensor.ato_tank_temperature
+        name: ATO Reservoir
+        color: '#8b5cf6'
+        stroke_width: 2
+  
+  # 24h Statistics
+  - type: horizontal-stack
+    cards:
+      - type: statistic
+        entity: sensor.display_tank_temperature
+        name: Display 24h Avg
+        stat_type: mean
+        period:
+          calendar:
+            period: day
+      
+      - type: statistic
+        entity: sensor.sump_temperature
+        name: Sump 24h Avg
+        stat_type: mean
+        period:
+          calendar:
+            period: day
+      
+      - type: statistic
+        entity: sensor.ato_tank_temperature
+        name: ATO 24h Avg
+        stat_type: mean
+        period:
+          calendar:
+            period: day
+  
+  # Calibration Section
+  - type: entities
+    title: 🔧 Temperature Calibration
+    show_header_toggle: false
+    entities:
+      - type: section
+        label: Display Tank
+      
+      - entity: sensor.display_tank_temperature_raw
+        name: Raw Reading
+      
+      - entity: number.display_tank_temp_calibration
+        name: Calibration Offset
+      
+      - entity: sensor.display_tank_temperature
+        name: Calibrated Temperature
+      
+      - type: section
+        label: Sump
+      
+      - entity: sensor.sump_temperature_raw
+        name: Raw Reading
+      
+      - entity: number.sump_temp_calibration
+        name: Calibration Offset
+      
+      - entity: sensor.sump_temperature
+        name: Calibrated Temperature
+      
+      - type: section
+        label: ATO Reservoir
+      
+      - entity: sensor.ato_temperature_raw
+        name: Raw Reading
+      
+      - entity: number.ato_reservoir_temp_calibration
+        name: Calibration Offset
+      
+      - entity: sensor.ato_tank_temperature
+        name: Calibrated Temperature
+  
+  # Guidelines
+  - type: markdown
+    content: |
+      ## ℹ️ Temperature Guidelines
+      
+      **Ideal Range:** 24-26°C (75-79°F)
+      
+      **Species-Specific:**
+      - Tropical Fish: 24-26°C
+      - Goldfish: 20-23°C
+      - Reef Tank: 24-26°C
+      - Discus: 28-30°C
+      
+      **Display ↔ Sump Difference:**
+      - 🟢 <1°C: Excellent circulation
+      - 🟡 1-2°C: Good circulation
+      - 🟠 2-3°C: Check circulation
+      - 🔴 >3°C: Poor circulation!
+    card_mod:
+      style: |
+        ha-card {
+          background: #ecfdf5;
+          border-left: 4px solid #10b981;
+        }
+
+# NOTE: Requires ApexCharts Card from HACS

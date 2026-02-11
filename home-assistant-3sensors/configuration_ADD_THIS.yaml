@@ -1,0 +1,159 @@
+# ============================================================================
+# ATO 3-Sensor Temperature Configuration
+# ADD THIS to your existing configuration.yaml
+# ============================================================================
+
+mqtt:
+  sensor:
+    # ========================================================================
+    # DISPLAY TANK TEMPERATURE SENSORS
+    # ========================================================================
+    - name: "Display Tank Temperature"
+      state_topic: "aquarium/temp/display"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      icon: mdi:thermometer-water
+    
+    - name: "Display Tank Temperature Raw"
+      state_topic: "aquarium/temp/display_raw"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-probe
+    
+    - name: "Display Tank 24h Average"
+      state_topic: "aquarium/temp/display_stats"
+      value_template: "{{ value_json.avg_24h if value_json.avg_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-lines
+    
+    - name: "Display Tank 24h Min"
+      state_topic: "aquarium/temp/display_stats"
+      value_template: "{{ value_json.min_24h if value_json.min_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-low
+    
+    - name: "Display Tank 24h Max"
+      state_topic: "aquarium/temp/display_stats"
+      value_template: "{{ value_json.max_24h if value_json.max_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-high
+    
+    # ========================================================================
+    # SUMP TEMPERATURE SENSORS
+    # ========================================================================
+    - name: "Sump Temperature"
+      state_topic: "aquarium/temp/sump"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      icon: mdi:thermometer-water
+    
+    - name: "Sump Temperature Raw"
+      state_topic: "aquarium/temp/sump_raw"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-probe
+    
+    - name: "Sump 24h Average"
+      state_topic: "aquarium/temp/sump_stats"
+      value_template: "{{ value_json.avg_24h if value_json.avg_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-lines
+    
+    - name: "Sump 24h Min"
+      state_topic: "aquarium/temp/sump_stats"
+      value_template: "{{ value_json.min_24h if value_json.min_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-low
+    
+    - name: "Sump 24h Max"
+      state_topic: "aquarium/temp/sump_stats"
+      value_template: "{{ value_json.max_24h if value_json.max_24h else 0 }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-high
+    
+    # ========================================================================
+    # TEMPERATURE DIFFERENCE
+    # ========================================================================
+    - name: "Display Sump Temp Difference"
+      state_topic: "aquarium/temp/display_sump_diff"
+      unit_of_measurement: "°C"
+      icon: mdi:thermometer-alert
+      state_class: measurement
+  
+  # ==========================================================================
+  # CALIBRATION CONTROLS
+  # ==========================================================================
+  number:
+    - name: "Display Tank Temp Calibration"
+      command_topic: "aquarium/temp/display_calibration_set"
+      state_topic: "aquarium/temp/display_calibration"
+      min: -5.0
+      max: 5.0
+      step: 0.1
+      unit_of_measurement: "°C"
+      icon: mdi:tune
+      mode: box
+    
+    - name: "Sump Temp Calibration"
+      command_topic: "aquarium/temp/sump_calibration_set"
+      state_topic: "aquarium/temp/sump_calibration"
+      min: -5.0
+      max: 5.0
+      step: 0.1
+      unit_of_measurement: "°C"
+      icon: mdi:tune
+      mode: box
+    
+    - name: "ATO Reservoir Temp Calibration"
+      command_topic: "aquarium/temp/ato_calibration_set"
+      state_topic: "aquarium/temp/ato_calibration"
+      min: -5.0
+      max: 5.0
+      step: 0.1
+      unit_of_measurement: "°C"
+      icon: mdi:tune
+      mode: box
+
+# ==============================================================================
+# AUTOMATIONS (Temperature Difference Alerts)
+# ==============================================================================
+automation:
+  - alias: "ATO Temperature Difference Warning"
+    id: ato_temp_diff_warning
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.display_sump_temp_difference
+        above: 2.0
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "⚠️ Temperature Difference"
+          message: "Display and Sump differ by {{ states('sensor.display_sump_temp_difference') }}°C"
+          data:
+            priority: high
+  
+  - alias: "ATO Temperature Difference Critical"
+    id: ato_temp_diff_critical
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.display_sump_temp_difference
+        above: 3.0
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "🚨 CRITICAL Temperature Difference"
+          message: "Display and Sump differ by {{ states('sensor.display_sump_temp_difference') }}°C - Check circulation!"
+          data:
+            priority: high
+            ttl: 0
+
+# NOTE: Replace 'YOUR_PHONE' with your actual mobile device
+# Find it in: Developer Tools → Services → Search 'notify.mobile_app'
