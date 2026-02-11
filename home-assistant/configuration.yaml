@@ -1,0 +1,366 @@
+# ATO Aquarium Monitor - Home Assistant Configuration
+# Add this to your configuration.yaml file
+
+mqtt:
+  sensor:
+    # Water Usage Sensors
+    - name: "ATO Daily Usage"
+      state_topic: "aquarium/ato/daily_usage"
+      unit_of_measurement: "L"
+      device_class: water
+      icon: mdi:water
+      state_class: measurement
+    
+    - name: "ATO 30-Day Total"
+      state_topic: "aquarium/ato/total_30d"
+      unit_of_measurement: "L"
+      device_class: water
+      icon: mdi:water-circle
+      state_class: total
+    
+    # Evaporation Rate Sensors
+    - name: "ATO Rate (1 hour)"
+      state_topic: "aquarium/ato/lph_1h"
+      unit_of_measurement: "L/h"
+      icon: mdi:speedometer
+      state_class: measurement
+    
+    - name: "ATO Rate (6 hours)"
+      state_topic: "aquarium/ato/lph_6h"
+      unit_of_measurement: "L/h"
+      icon: mdi:chart-timeline-variant
+      state_class: measurement
+    
+    - name: "ATO Rate (24 hours)"
+      state_topic: "aquarium/ato/lph_24h"
+      unit_of_measurement: "L/h"
+      icon: mdi:chart-line
+      state_class: measurement
+    
+    - name: "ATO Rate (7 days)"
+      state_topic: "aquarium/ato/lph_7d"
+      unit_of_measurement: "L/h"
+      icon: mdi:chart-bell-curve
+      state_class: measurement
+    
+    - name: "ATO Rate (30 days)"
+      state_topic: "aquarium/ato/lph_30d"
+      unit_of_measurement: "L/h"
+      icon: mdi:chart-bell-curve-cumulative
+      state_class: measurement
+    
+    # Reservoir Sensors
+    - name: "ATO Reservoir Level"
+      state_topic: "aquarium/ato/reservoir_level"
+      unit_of_measurement: "L"
+      device_class: water
+      icon: mdi:water-outline
+      state_class: measurement
+    
+    - name: "ATO Reservoir Percent"
+      state_topic: "aquarium/ato/reservoir_percent"
+      unit_of_measurement: "%"
+      icon: mdi:water-percent
+      state_class: measurement
+    
+    - name: "ATO Days Until Empty"
+      state_topic: "aquarium/ato/days_until_empty"
+      unit_of_measurement: "days"
+      icon: mdi:calendar-clock
+      state_class: measurement
+    
+    # Activity Sensors
+    - name: "ATO Activation Count"
+      state_topic: "aquarium/ato/activations"
+      icon: mdi:counter
+      state_class: total
+    
+    - name: "ATO Hours Since Last"
+      state_topic: "aquarium/ato/hours_since"
+      unit_of_measurement: "h"
+      icon: mdi:clock-outline
+      state_class: measurement
+    
+    - name: "ATO State"
+      state_topic: "aquarium/ato/state"
+      icon: mdi:water-pump
+    
+    - name: "ATO Current Fill Duration"
+      state_topic: "aquarium/ato/filling_duration"
+      unit_of_measurement: "s"
+      icon: mdi:timer-sand
+      device_class: duration
+      state_class: measurement
+    
+    # Calibration Sensors
+    - name: "ATO Calibrated L/activation"
+      state_topic: "aquarium/ato/calibrated_lph"
+      unit_of_measurement: "L"
+      icon: mdi:tune
+      state_class: measurement
+    
+    - name: "ATO Calibration Confidence"
+      state_topic: "aquarium/ato/calibration_confidence"
+      unit_of_measurement: "%"
+      icon: mdi:check-circle
+      state_class: measurement
+    
+    - name: "ATO Activations Since Refill"
+      state_topic: "aquarium/ato/activations_since_refill"
+      icon: mdi:counter
+      state_class: total
+    
+    # Temperature Sensors
+    - name: "ATO Tank Temperature"
+      state_topic: "aquarium/ato/temperature"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      icon: mdi:thermometer-water
+    
+    - name: "ATO Temperature Raw"
+      state_topic: "aquarium/ato/temperature_raw"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-probe
+    
+    - name: "ATO Temp 24h Average"
+      state_topic: "aquarium/ato/temp_stats"
+      value_template: "{{ value_json.avg_24h }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-lines
+    
+    - name: "ATO Temp 24h Min"
+      state_topic: "aquarium/ato/temp_stats"
+      value_template: "{{ value_json.min_24h }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-low
+    
+    - name: "ATO Temp 24h Max"
+      state_topic: "aquarium/ato/temp_stats"
+      value_template: "{{ value_json.max_7d }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      icon: mdi:thermometer-high
+    
+    # System Sensors
+    - name: "ATO Current Season"
+      state_topic: "aquarium/ato/current_season"
+      icon: mdi:calendar-range
+    
+    - name: "ATO Pump State"
+      state_topic: "aquarium/ato/pump_state"
+      icon: mdi:pump
+    
+    - name: "ATO Pump Running"
+      state_topic: "aquarium/ato/pump_running"
+      icon: mdi:pump
+    
+    - name: "ATO Alerts Count"
+      state_topic: "aquarium/ato/stats"
+      value_template: "{{ value_json.alerts_count }}"
+      icon: mdi:alert-circle-outline
+    
+    - name: "ATO Pump Cycles Count"
+      state_topic: "aquarium/ato/stats"
+      value_template: "{{ value_json.pump_cycles_count }}"
+      icon: mdi:counter
+    
+    # Full stats sensor for advanced features
+    - name: "ATO Stats Full"
+      state_topic: "aquarium/ato/stats"
+      value_template: "{{ value_json.calibration_confidence }}"
+      json_attributes_topic: "aquarium/ato/stats"
+      icon: mdi:information
+    
+    - name: "ATO Alerts"
+      state_topic: "aquarium/ato/alerts"
+      icon: mdi:alert
+      value_template: >
+        {% set alerts = value_json %}
+        {% if alerts|length > 0 %}
+          {{ alerts|length }} alert(s)
+        {% else %}
+          No alerts
+        {% endif %}
+      json_attributes_topic: "aquarium/ato/alerts"
+
+  # Switches
+  switch:
+    - name: "ATO Monitoring Enable"
+      state_topic: "aquarium/ato/monitoring_enabled"
+      command_topic: "aquarium/ato/enable"
+      payload_on: "ON"
+      payload_off: "OFF"
+      state_on: "ON"
+      state_off: "OFF"
+      icon: mdi:shield-check
+      optimistic: false
+    
+    - name: "ATO Manual Pump"
+      command_topic: "aquarium/ato/pump_manual"
+      state_topic: "aquarium/ato/pump_state"
+      payload_on: "ON"
+      payload_off: "OFF"
+      state_on: "ON"
+      state_off: "OFF"
+      icon: mdi:pump
+      optimistic: false
+
+  # Binary Sensors
+  binary_sensor:
+    - name: "ATO Critical Alert"
+      state_topic: "aquarium/ato/alert_critical"
+      payload_on: ".*"
+      payload_off: ""
+      device_class: problem
+    
+    - name: "ATO Warning Alert"
+      state_topic: "aquarium/ato/alert_warning"
+      payload_on: ".*"
+      payload_off: ""
+      device_class: problem
+    
+    - name: "ATO Monitoring Active"
+      state_topic: "aquarium/ato/monitoring_enabled"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: running
+
+  # Number Inputs
+  number:
+    - name: "ATO Refill Amount"
+      command_topic: "aquarium/ato/refill"
+      min: 0
+      max: 23
+      step: 0.1
+      unit_of_measurement: "L"
+      icon: mdi:water-plus
+      mode: box
+    
+    - name: "ATO Temperature Calibration"
+      command_topic: "aquarium/ato/temp_calibration_set"
+      state_topic: "aquarium/ato/temp_calibration_offset"
+      min: -5.0
+      max: 5.0
+      step: 0.1
+      unit_of_measurement: "°C"
+      icon: mdi:thermometer-lines
+      mode: box
+
+  # Buttons
+  button:
+    - name: "ATO Refilled Reservoir (Full)"
+      command_topic: "aquarium/ato/refill"
+      payload_press: "23"
+      icon: mdi:water-plus
+    
+    - name: "ATO Reset Daily Counters"
+      command_topic: "aquarium/ato/reset"
+      payload_press: "1"
+      icon: mdi:restart
+
+# Automations
+automation:
+  - alias: "ATO Critical Alert Notification"
+    id: ato_critical_alert
+    trigger:
+      platform: mqtt
+      topic: "aquarium/ato/alert_critical"
+    condition:
+      - condition: template
+        value_template: "{{ trigger.payload != '' }}"
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "🚨 Aquarium ATO Critical"
+          message: "{{ trigger.payload }}"
+          data:
+            priority: high
+            ttl: 0
+            channel: "ATO Critical"
+  
+  - alias: "ATO Warning Notification"
+    id: ato_warning
+    trigger:
+      platform: mqtt
+      topic: "aquarium/ato/alert_warning"
+    condition:
+      - condition: template
+        value_template: "{{ trigger.payload != '' }}"
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "⚠️ Aquarium ATO Warning"
+          message: "{{ trigger.payload }}"
+          data:
+            channel: "ATO Warnings"
+  
+  - alias: "Reset ATO Daily Counter"
+    id: ato_daily_reset
+    trigger:
+      platform: time
+      at: "00:00:00"
+    action:
+      service: mqtt.publish
+      data:
+        topic: "aquarium/ato/reset"
+        payload: "1"
+  
+  - alias: "ATO Reservoir Refill Reminder"
+    id: ato_refill_reminder
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.ato_reservoir_level
+        below: 5
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "🪣 Time to Refill ATO"
+          message: "Reservoir at {{ states('sensor.ato_reservoir_level') }}L - refill soon"
+  
+  - alias: "ATO Monitoring Disabled Notification"
+    id: ato_monitoring_disabled
+    trigger:
+      - platform: state
+        entity_id: switch.ato_monitoring_enable
+        to: "off"
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "🛑 ATO Monitoring Disabled"
+          message: "ATO is no longer monitoring. Water level will not be tracked."
+          data:
+            priority: high
+  
+  - alias: "ATO Monitoring Enabled Notification"
+    id: ato_monitoring_enabled
+    trigger:
+      - platform: state
+        entity_id: switch.ato_monitoring_enable
+        to: "on"
+    action:
+      - service: notify.mobile_app_YOUR_PHONE
+        data:
+          title: "✅ ATO Monitoring Enabled"
+          message: "ATO monitoring has been resumed."
+
+# Note: Replace 'mobile_app_YOUR_PHONE' with your actual mobile app notify service
+# Find it in: Developer Tools → Services → Filter for 'notify.mobile_app'
+
+# ============================================================================
+# SMART REFILL BUTTON (Added for v2.0)
+# ============================================================================
+
+mqtt:
+  button:
+    - name: "ATO Smart Refill"
+      command_topic: "aquarium/ato/smart_refill"
+      payload_press: "1"
+      icon: mdi:water-check
+      device_class: restart
+
+# NOTE: The smart refill button only works when calibration confidence ≥ 80%
+# The Python script will validate confidence before executing
